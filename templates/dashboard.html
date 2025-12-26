@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billofy License Manager</title>
+    
+    <script src="{% static 'js/tailwindcss.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+</head>
+<body class="bg-slate-100 font-sans text-slate-800">
+
+    <nav class="bg-slate-900 p-3 text-white shadow-lg flex justify-between items-center sticky top-0 z-50 border-b-4 border-red-600">
+        <div class="flex items-center gap-3">
+            <img src="{% static 'images/billofy_key.png' %}" alt="Billofy Logo" class="w-10 h-10 object-contain drop-shadow-md hover:scale-110 transition duration-300">
+            <h1 class="text-2xl font-bold tracking-tight">Billofy <span class="text-red-500">Admin</span></h1>
+        </div>
+        <a href="{% url 'logout' %}" class="bg-slate-800 border border-slate-600 px-4 py-2 rounded hover:bg-red-600 hover:border-red-600 hover:text-white transition duration-300 text-sm font-medium shadow-sm">
+            <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+        </a>
+    </nav>
+
+    <div class="container mx-auto p-6 max-w-6xl">
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="p-4 mb-4 text-sm text-white rounded-lg {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}" role="alert">
+                    <span class="font-bold">Info:</span> {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="bg-white p-8 rounded-xl shadow-lg mb-10 border border-slate-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-2 h-full bg-red-600"></div>
+
+            <h2 class="text-2xl font-bold mb-6 text-slate-800 flex items-center">
+                <i class="fa-solid fa-wand-magic-sparkles text-red-600 mr-3"></i> Generate License
+            </h2>
+            
+            <form method="POST" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                {% csrf_token %}
+                
+                <div class="md:col-span-4">
+                    <label class="block text-slate-600 text-xs font-bold uppercase mb-2">Client Name</label>
+                    <input type="text" name="name" placeholder="e.g. John Doe" required class="w-full border border-slate-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition shadow-sm">
+                </div>
+                
+                <div class="md:col-span-4">
+                    <label class="block text-slate-600 text-xs font-bold uppercase mb-2">Hardware ID</label>
+                    <div class="relative">
+                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-microchip"></i>
+                         </span>
+                        <input type="text" name="hw_id" placeholder="Paste ID here..." required class="w-full border border-slate-300 p-3 pl-10 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition shadow-sm font-mono text-sm">
+                    </div>
+                </div>
+                
+                <div class="md:col-span-4 flex flex-col justify-end">
+                    <label class="block text-slate-600 text-xs font-bold uppercase mb-2">Validity</label>
+                    <div class="flex gap-2">
+                        <select name="days" class="w-full border border-slate-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-red-500 transition bg-white shadow-sm cursor-pointer">
+                            <optgroup label="Testing & Demos">
+                                <option value="60">1 Minute Demo</option>
+                                <option value="1800">30 Minutes Demo</option>
+                            </optgroup>
+                            <optgroup label="Full Licenses">
+                                <option value="604800">7 Days (Trial)</option>
+                                <option value="2592000">1 Month (30 Days)</option>
+                                <option value="31536000" selected>1 Year (365 Days)</option>
+                                <option value="315360000">Lifetime (10 Years)</option>
+                            </optgroup>
+                        </select>
+                        
+                        <button type="submit" class="bg-red-600 text-white font-bold p-3 rounded hover:bg-red-700 shadow-md hover:shadow-lg transition flex items-center justify-center px-6">
+                            <i class="fa-solid fa-bolt"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+            
+            <div class="p-5 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-700">License History</h3>
+                    <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full uppercase tracking-wide">{{ active_count }} Active</span>
+                </div>
+
+                <form method="GET" class="flex w-full md:w-auto relative">
+                    <input type="text" name="q" placeholder="Search client or ID..." value="{{ request.GET.q|default:'' }}" class="border border-slate-300 p-2 pl-4 pr-10 rounded-l-lg w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition text-sm">
+                    
+                    {% if request.GET.q %}
+                        <a href="{% url 'dashboard' %}" class="absolute right-12 top-2 text-slate-400 hover:text-red-500 transition">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                    {% endif %}
+                    
+                    <button type="submit" class="bg-slate-800 text-white px-4 rounded-r-lg hover:bg-slate-700 transition">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full leading-normal">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-600 uppercase text-xs font-bold tracking-wider">
+                            <th class="py-4 px-6 text-left border-b border-slate-200">Client Name</th>
+                            <th class="py-4 px-6 text-left border-b border-slate-200">Hardware ID</th>
+                            <th class="py-4 px-6 text-left border-b border-slate-200">License Key</th>
+                            <th class="py-4 px-6 text-center border-b border-slate-200">Status</th>
+                            <th class="py-4 px-6 text-center border-b border-slate-200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-slate-600 text-sm">
+                        {% for client in clients %}
+                        <tr class="border-b border-slate-100 hover:bg-red-50 transition duration-150 group">
+                            <td class="py-4 px-6 text-left font-semibold text-slate-800 group-hover:text-red-700">
+                                {{ client.name }}
+                            </td>
+                            <td class="py-4 px-6 text-left font-mono text-xs text-slate-500">
+                                {{ client.hardware_id }}
+                            </td>
+                            <td class="py-4 px-6 text-left">
+                                <div class="flex items-center gap-2">
+                                    <code class="bg-slate-100 border border-slate-200 px-2 py-1 rounded text-xs text-red-600 font-mono select-all">
+                                        {{ client.secret_key|truncatechars:20 }}...
+                                    </code>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6 text-center">
+                                {% if client.is_active %}
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200">
+                                        <i class="fa-solid fa-clock mr-1"></i> {{ client.time_remaining }}
+                                    </div>
+                                {% else %}
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-500 border border-slate-300">
+                                        EXPIRED
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 px-6 text-center">
+                                <div class="flex justify-center items-center gap-3">
+                                    <button onclick="copyToClipboard('{{ client.secret_key }}')" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-blue-600 hover:border-blue-600 transition flex items-center justify-center shadow-sm" title="Copy Key">
+                                        <i class="fa-regular fa-copy"></i>
+                                    </button>
+
+                                    <a href="{% url 'delete_client' client.id %}" onclick="return confirm('Delete {{ client.name }}?')" class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-500 hover:text-red-600 hover:border-red-600 transition flex items-center justify-center shadow-sm" title="Delete">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="py-12 text-center text-slate-400 flex flex-col items-center justify-center">
+                                <div class="bg-slate-100 p-4 rounded-full mb-3">
+                                    <i class="fa-solid fa-folder-open text-2xl"></i>
+                                </div>
+                                No clients found. Generate your first license above!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('License Key Copied!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
