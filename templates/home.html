@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - {{ BRANDING.PROJECT_NAME }}</title>
+
+    <script src="{% static 'js/tailwindcss.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 font-sans text-slate-800 min-h-screen">
+
+    {% include 'partials/header.html' %}
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+
+        {% if github_warning %}
+        <div class="p-4 mb-6 text-sm text-amber-800 bg-amber-100 border border-amber-300 rounded-lg shadow-md flex items-center justify-between gap-2" role="alert">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg"></i>
+                <span class="font-bold">Warning:</span> {{ github_warning }}
+            </div>
+            <a href="{% url 'settings' %}" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-3 py-1 rounded text-xs transition flex items-center gap-1">
+                <i class="fa-solid fa-gear"></i> Settings
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-slate-800 mb-2">
+                Welcome to <span class="text-green-600">{{ BRANDING.PROJECT_NAME }}</span>
+            </h1>
+            <p class="text-slate-600 text-lg">Manage your software licenses efficiently and securely</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Clients Card -->
+            <div
+                class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500 hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Clients</p>
+                        <p class="text-3xl font-bold text-slate-800 mt-2">{{ total_clients }}</p>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-4">
+                        <i class="fa-solid fa-users text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Licenses Card -->
+            <div
+                class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500 hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Active Licenses</p>
+                        <p class="text-3xl font-bold text-slate-800 mt-2">{{ active_count }}</p>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-4">
+                        <i class="fa-solid fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expired Licenses Card -->
+            <div
+                class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500 hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Expired Licenses</p>
+                        <p class="text-3xl font-bold text-slate-800 mt-2">{{ expired_count }}</p>
+                    </div>
+                    <div class="bg-red-100 rounded-full p-4">
+                        <i class="fa-solid fa-times-circle text-red-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Keys Generated Card -->
+            <div
+                class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500 hover:shadow-xl transition duration-300 transform hover:-translate-y-1">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">Keys Generated</p>
+                        <p class="text-3xl font-bold text-slate-800 mt-2">{{ total_clients }}</p>
+                    </div>
+                    <div class="bg-purple-100 rounded-full p-4">
+                        <i class="fa-solid fa-key text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+                <i class="fa-solid fa-bolt text-green-600 mr-3"></i>
+                Quick Actions
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a href="{% url 'dashboard' %}"
+                    class="flex items-center p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                    <i class="fa-solid fa-key text-2xl mr-4"></i>
+                    <div>
+                        <p class="font-bold text-lg">Generate License</p>
+                        <p class="text-sm text-blue-100">Create new license keys</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'dashboard' %}"
+                    class="flex items-center p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                    <i class="fa-solid fa-list text-2xl mr-4"></i>
+                    <div>
+                        <p class="font-bold text-lg">View All Licenses</p>
+                        <p class="text-sm text-green-100">Manage existing licenses</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'settings' %}"
+                    class="flex items-center p-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                    <i class="fa-solid fa-gear text-2xl mr-4"></i>
+                    <div>
+                        <p class="font-bold text-lg">Settings</p>
+                        <p class="text-sm text-purple-100">Configure system settings</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center">
+                <i class="fa-solid fa-clock-rotate-left text-green-600 mr-3"></i>
+                Recent Activity
+            </h2>
+
+            {% if recent_clients %}
+            <div class="space-y-4">
+                {% for client in recent_clients %}
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-green-100 rounded-full p-3">
+                            <i class="fa-solid fa-user text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-800">{{ client.name }}</p>
+                            <p class="text-sm text-slate-500">{{ client.hardware_id }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                {% if client.is_active %}
+                                    bg-green-100 text-green-800
+                                {% else %}
+                                    bg-red-100 text-red-800
+                                {% endif %}">
+                            {% if client.is_active %}
+                            <i class="fa-solid fa-check mr-1"></i> Active
+                            {% else %}
+                            <i class="fa-solid fa-times mr-1"></i> Expired
+                            {% endif %}
+                        </span>
+                        <p class="text-xs text-slate-500 mt-1">{{ client.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <i class="fa-solid fa-inbox text-slate-300 text-6xl mb-4"></i>
+                <p class="text-slate-500 text-lg">No recent activity</p>
+                <p class="text-slate-400 text-sm">Start by generating your first license</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+</body>
+
+</html>

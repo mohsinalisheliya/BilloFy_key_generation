@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Update - {{ BRANDING.PROJECT_NAME }}</title>
+
+    <script src="{% static 'js/tailwindcss.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+</head>
+
+<body class="bg-slate-100 font-sans text-slate-800">
+
+    {% include 'partials/header.html' %}
+
+    <div class="container mx-auto p-6 max-w-5xl">
+
+        <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800 mb-2 flex items-center">
+                    <i class="fa-solid fa-cloud-arrow-up text-red-600 mr-3"></i>
+                    Push Update
+                </h1>
+                <p class="text-slate-600">Send software updates to all active clients</p>
+            </div>
+            
+            <a href="{% url 'update_list' %}" class="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-slate-300 rounded-lg text-slate-700 font-semibold hover:bg-slate-50 hover:text-red-600 transition shadow-sm">
+                <i class="fa-solid fa-list-ul mr-2"></i> View Update History
+            </a>
+        </div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="p-4 mb-4 text-sm text-white rounded-lg shadow-md flex items-center gap-2 {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-600{% endif %}"
+            role="alert">
+            <i class="fa-solid {% if message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+            <span class="font-bold">{{ message.tags|title }}:</span> {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+            <div class="p-8">
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+
+                    <div>
+                        <label class="block text-slate-700 text-sm font-bold mb-2">
+                            <i class="fa-solid fa-code-branch text-red-600 mr-2"></i>Version Number
+                        </label>
+                        <input type="text" name="version" required
+                            class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition shadow-sm"
+                            placeholder="e.g., 2.0.1">
+                        <p class="text-xs text-slate-500 mt-1">Enter the version number for this update</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 text-sm font-bold mb-2">
+                            <i class="fa-solid fa-heading text-red-600 mr-2"></i>Update Title
+                        </label>
+                        <input type="text" name="title" required
+                            class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition shadow-sm"
+                            placeholder="e.g., New Features and Bug Fixes">
+                        <p class="text-xs text-slate-500 mt-1">Brief title describing this update</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 text-sm font-bold mb-2">
+                            <i class="fa-solid fa-align-left text-red-600 mr-2"></i>Description
+                        </label>
+                        <textarea name="description" rows="5" required
+                            class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition shadow-sm"
+                            placeholder="Describe what's new in this update..."></textarea>
+                        <p class="text-xs text-slate-500 mt-1">Detailed description of changes and improvements</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 text-sm font-bold mb-2">
+                            <i class="fa-solid fa-file-zipper text-red-600 mr-2"></i>Update File
+                        </label>
+                        <input type="file" name="update_file" accept=".zip,.exe,.msi" required
+                            class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                        <p class="text-xs text-slate-500 mt-1">Upload the update package (.zip, .exe, or .msi)</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 text-sm font-bold mb-2">
+                            <i class="fa-solid fa-layer-group text-red-600 mr-2"></i>Update Type
+                        </label>
+                        <select name="update_type" required
+                            class="w-full border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition shadow-sm">
+                            <option value="optional">Optional Update</option>
+                            <option value="recommended">Recommended Update</option>
+                            <option value="critical">Critical Update (Forced)</option>
+                        </select>
+                        <p class="text-xs text-slate-500 mt-1">Critical updates will be automatically installed</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-700 text-sm font-bold mb-2">
+                            <i class="fa-solid fa-users text-red-600 mr-2"></i>Target Clients
+                        </label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="radio" name="target" value="all" checked class="mr-2">
+                                <span class="text-sm">All Active Clients ({{ active_count }})</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="target" value="specific" class="mr-2">
+                                <span class="text-sm">Specific Clients (Select Below)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="client-selection" class="hidden">
+                        <label class="block text-slate-700 text-sm font-bold mb-2">Select Clients</label>
+                        <div class="border border-slate-300 rounded-lg p-4 max-h-64 overflow-y-auto">
+                            {% for client in clients %}
+                            {% if client.is_active %}
+                            <label class="flex items-center py-2 hover:bg-slate-50 px-2 rounded">
+                                <input type="checkbox" name="selected_clients" value="{{ client.id }}" class="mr-3">
+                                <div class="flex-1">
+                                    <p class="font-semibold text-sm">{{ client.name }}</p>
+                                    <p class="text-xs text-slate-500">{{ client.hardware_id }}</p>
+                                </div>
+                            </label>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="submit"
+                            class="flex-1 bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Push Update
+                        </button>
+                        <a href="{% url 'home' %}"
+                            class="bg-slate-200 text-slate-700 font-bold py-3 px-6 rounded-lg hover:bg-slate-300 transition duration-300 shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-xmark"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Show/hide client selection based on target radio
+        const targetRadios = document.querySelectorAll('input[name="target"]');
+        const clientSelection = document.getElementById('client-selection');
+
+        targetRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (this.value === 'specific') {
+                    clientSelection.classList.remove('hidden');
+                } else {
+                    clientSelection.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

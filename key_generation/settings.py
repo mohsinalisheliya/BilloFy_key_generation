@@ -62,6 +62,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "licenses.context_processors.branding",  # Add branding to all templates
             ],
         },
     },
@@ -128,14 +129,41 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# settings.py
+# --- BRANDING CONFIGURATION ---
+# Centralized branding settings - change project name and logo from here
+BRANDING = {
+    'PROJECT_NAME': 'BilloFy Admin',
+    'PROJECT_NAME_SHORT': 'BilloFy',
+    'LOGO_PATH': 'images/billofy_key.png',
+    'PRIMARY_COLOR': 'red',  # For future customization
+}
 
-# Session stays valid for 2 Weeks (in seconds)
-# 60 * 60 * 24 * 14 = 1209600
-SESSION_COOKIE_AGE = 1209600 
+# --- CUSTOM LOGIN SYSTEM SETTINGS ---
+MASTER_ADMIN_PASSWORD = "admin"  # <--- SET YOUR PASSWORD HERE
 
-# Keep the user logged in even if they close the browser
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False 
+# --- SESSION CONFIGURATION (Robust & Secure) ---
+# Use database-backed sessions for reliability and persistence
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-# Refresh the session timer every time they click a link
+# Default session duration (24 hours)
+# This can be overridden per-user with Remember Me functionality
+SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
+
+# Expire session when browser closes (default behavior)
+# This is overridden when Remember Me is checked
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Refresh session expiry on every request to keep active users logged in
 SESSION_SAVE_EVERY_REQUEST = True
+
+# Security settings for session cookies
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+
+# Session cookie name
+SESSION_COOKIE_NAME = 'billofy_sessionid'
+
+# --- MEDIA FILES (User Uploads) ---
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

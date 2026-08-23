@@ -1,0 +1,224 @@
+{% load static %}
+<nav class="bg-white  shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <!-- Logo and Navigation Links -->
+            <div class="flex">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="{% url 'dashboard' %}">
+                        <img class="h-10 w-10 object-contain drop-shadow-md hover:scale-110 transition duration-300"
+                            src="{{ BRANDING.LOGO_PATH }}" alt="{{ BRANDING.PROJECT_NAME }} Logo">
+                    </a>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <a href="{% url 'home' %}"
+                        class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium hover:text-red-600 transition">
+                        <i class="fa-solid fa-home mr-2"></i> Home
+                    </a>
+                    <a href="{% url 'dashboard' %}"
+                        class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium hover:text-red-600 transition">
+                        <i class="fa-solid fa-key mr-2"></i> Key Generation
+                    </a>
+                    <a href="{% url 'push_update' %}"
+                        class="nav-link inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium hover:text-red-600 transition">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Push Update
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right side: Clock and Profile -->
+            <div class="flex items-center space-x-4">
+                <!-- Indian Clock -->
+                <div class="hidden lg:block text-right">
+                    <div id="indian-clock" class="text-sm font-bold text-sm font-mono"></div>
+                    <div id="indian-date" class="text-xs text-gray-600"></div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    <button id="profile-menu-button" type="button"
+                        class="flex items-center justify-center w-10 h-10 rounded-full bg-red-600 text-white font-semibold text-sm hover:shadow-lg hover:bg-red-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        {% if request.session.admin_username %}
+                        {{ request.session.admin_username|slice:":1"|upper }}
+                        {% else %}
+                        A
+                        {% endif %}
+                    </button>
+
+                    <div id="profile-dropdown"
+                        class="hidden absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-xl ring-1 ring-black ring-opacity-5 z-50">
+                        <div class="p-4">
+                            <!-- Profile Header -->
+                            <div class="flex items-center space-x-3 pb-4 border-b border-gray-200">
+                                <div class="flex-shrink-0">
+                                    <div
+                                        class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                                        {% if request.session.admin_username %}
+                                        {{ request.session.admin_username|slice:":1"|upper }}
+                                        {% else %}
+                                        A
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">
+                                        {% if request.session.admin_username %}
+                                        {{ request.session.admin_username }}
+                                        {% else %}
+                                        Admin User
+                                        {% endif %}
+                                    </p>
+                                    <p class="text-xs text-gray-500">Administrator</p>
+                                </div>
+                            </div>
+
+                            <!-- Profile Info -->
+                            <div class="py-3 space-y-2">
+                                <div class="flex items-center px-3 py-2 bg-gray-50 rounded-md">
+                                    <i class="fa-solid fa-shield-halved w-5 h-5 mr-3 text-gray-400"></i>
+                                    <div class="flex-1">
+                                        <p class="text-xs text-gray-500">Role</p>
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Master Admin
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Menu Links -->
+                            <div class="py-2 border-t border-gray-200">
+                                <a href="{% url 'dashboard' %}"
+                                    class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                                    <i class="fa-solid fa-home w-5 h-5 mr-3 text-gray-400"></i>
+                                    Dashboard
+                                </a>
+                                <a href="{% url 'settings' %}"
+                                    class="flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                                    <i class="fa-solid fa-gear w-5 h-5 mr-3 text-gray-400"></i>
+                                    Settings
+                                </a>
+                            </div>
+
+                            <!-- Logout -->
+                            <div class="pt-2 border-t border-gray-200">
+                                <a href="{% url 'logout' %}"
+                                    class="flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors font-medium">
+                                    <i class="fa-solid fa-right-from-bracket w-5 h-5 mr-3"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="-mr-2 flex items-center sm:hidden">
+                <button type="button" id="mobile-menu-button"
+                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-red-500">
+                    <span class="sr-only">Open main menu</span>
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="hidden sm:hidden" id="mobile-menu">
+        <div class="pt-2 pb-3 space-y-1 bg-slate-800">
+            <a href="{% url 'dashboard' %}"
+                class="mobile-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-300 hover:bg-slate-700 hover:border-red-500 hover:text-white">
+                <i class="fa-solid fa-home mr-2"></i> Dashboard
+            </a>
+            <a href="{% url 'settings' %}"
+                class="mobile-link block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-300 hover:bg-slate-700 hover:border-red-500 hover:text-white">
+                <i class="fa-solid fa-gear mr-2"></i> Settings
+            </a>
+            <a href="{% url 'logout' %}"
+                class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-red-400 hover:bg-red-900 hover:border-red-500 hover:text-white">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<script>
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    if (mobileMenuButton) {
+        mobileMenuButton.addEventListener('click', function () {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+
+    // Profile dropdown toggle
+    const profileButton = document.getElementById('profile-menu-button');
+    if (profileButton) {
+        profileButton.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+        const dropdown = document.getElementById('profile-dropdown');
+        const button = document.getElementById('profile-menu-button');
+
+        if (dropdown && button && !dropdown.contains(e.target) && !button.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
+
+    // Indian Clock Script
+    function updateIndianTime() {
+        const now = new Date();
+
+        const timeOptions = {
+            timeZone: 'Asia/Kolkata',
+            hour12: true,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        };
+
+        const dateOptions = {
+            timeZone: 'Asia/Kolkata',
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        };
+
+        const timeString = now.toLocaleTimeString('en-IN', timeOptions);
+        const dateString = now.toLocaleDateString('en-IN', dateOptions);
+
+        const clockElement = document.getElementById('indian-clock');
+        const dateElement = document.getElementById('indian-date');
+
+        if (clockElement) clockElement.textContent = timeString;
+        if (dateElement) dateElement.textContent = dateString;
+    }
+
+    // Update every second
+    setInterval(updateIndianTime, 1000);
+    updateIndianTime();
+
+    // Active link highlighting
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentPath = window.location.pathname;
+        const links = document.querySelectorAll('.nav-link');
+        links.forEach(link => {
+            const linkPath = new URL(link.href).pathname;
+            if (linkPath === currentPath) {
+                link.classList.add('border-red-500');
+                link.classList.remove('border-transparent');
+            } else {
+                link.classList.add('border-transparent');
+            }
+        });
+    });
+</script>

@@ -54,7 +54,7 @@ python manage.py runserver
 ```
 
 7. Access the application at `http://127.0.0.1:8000/`
-
+8. run this server in `http://127.0.0.1:8700/` to push the update 
 ## Usage
 
 1. Log in with your admin credentials

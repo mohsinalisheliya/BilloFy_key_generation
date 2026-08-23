@@ -17,12 +17,30 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from licenses.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', dashboard, name='dashboard'),
-    path('login/', login_view, name='login'),
+    path('', login_view, name='login'),
+    path('home/', home_view, name='home'),
+    path('register/', register, name='register'),
+    path('dashboard/', dashboard, name='dashboard'),
+    path('push-update/', push_update_view, name='push_update'),
     path('logout/', logout_view, name='logout'),
     path('delete/<int:client_id>/', delete_client, name='delete_client'),
+    path('download-card/<int:client_id>/', download_card, name='download_card'),
+    path('settings/', settings_view, name='settings'),
+
+
+    # Update System URLs
+    path('push-update/', push_update_view, name='push_update'),
+    path('updates/list/', update_list_view, name='update_list'),
+    path('updates/delete/', delete_updates_view, name='delete_updates'),
+    path('api/check-update/', check_update_api, name='check_update_api'), # API URL
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
