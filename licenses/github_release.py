@@ -1,7 +1,7 @@
-from key_generation.licenses.models import SiteSetting
 import os
 import requests
-
+# pyrefly: ignore [missing-import]
+from .models import SiteSetting
 
 
 def push_to_github(version, title, notes, file_path):

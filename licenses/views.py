@@ -276,22 +276,22 @@ def settings_view(request):
             messages.error(request, "Project name is required.")
     
     return render(request, 'settings.html', {'settings': site_settings})
-    
+
+
+
 # ==========================================
 # 4. UPDATE SYSTEM (SERVER SIDE)
 # ==========================================
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .models import SoftwareUpdate, Client  # Ensure Client is imported
-
+# Upar imports me ye add karo
+from .github_release import push_to_github
+import os
+from django.conf import settings
 
 @admin_required
 def push_update_view(request):
     """
-    Handles uploading new update files (EXE) to the database.
-    (History list removed from here)
+    Handles uploading new update files (EXE) to the database AND pushing to GitHub Releases.
     """
-    # Get clients for the selection dropdown (Required for the 'Target Clients' section)
     clients = Client.objects.all().order_by('-created_at')
     active_count = sum(1 for c in clients if c.is_active)
     
@@ -299,12 +299,18 @@ def push_update_view(request):
         version = request.POST.get('version', '').strip()
         title = request.POST.get('title', '').strip()
         description = request.POST.get('description', '').strip()
-        update_type = request.POST.get('update_type', 'optional'  ) # Get update type
+        update_type = request.POST.get('update_type', 'optional')
         
         if 'update_file' in request.FILES and version and title:
+            # --- YAHAN NAYI CHECK ADD KARO ---
+            if SoftwareUpdate.objects.filter(version=version).exists():
+                messages.error(request, f"Update version v{version} already exists! Please use a different version or delete the old one first.")
+                return redirect('push_update')
+            # ---------------------------------
+            
             try:
-                # Create the update record
-                SoftwareUpdate.objects.create(
+                # 1. Pehle local DB me save karo (taaki file physically system me aa jaye)
+                update_obj = SoftwareUpdate.objects.create(
                     version=version,
                     title=title,
                     description=description,
@@ -312,19 +318,34 @@ def push_update_view(request):
                     update_type=update_type,
                     is_active=True
                 )
-                messages.success(request, f"Update v{version} uploaded successfully!")
+                
+                
+                # 2. File ka actual path nikalo
+                file_path = update_obj.update_file.path
+                
+                # 3. GitHub par push karo (API call)
+                is_success, gh_result = push_to_github(version, title, description, file_path)
+                
+                if is_success:
+                    # Agar success hua toh GitHub ka real download URL DB me save kar do
+                    update_obj.download_url = gh_result
+                    update_obj.save()
+                    messages.success(request, f"Update v{version} pushed to GitHub successfully!")
+                else:
+                    # Agar fail hua toh user ko batao
+                    messages.warning(request, f"Saved locally, BUT GitHub push failed: {gh_result}")
+                    
                 return redirect('push_update')
+                
             except Exception as e:
                 messages.error(request, f"Error saving update: {str(e)}")
         else:
             messages.error(request, "Version, Title, and File are required.")
-    
-    # Context does NOT include 'updates' anymore
+            
     return render(request, 'push_update.html', {
         'clients': clients,
         'active_count': active_count,
     })
-
 
 # ---------------------------------------------------------
 # 2. UPDATE LIST VIEW (New)
